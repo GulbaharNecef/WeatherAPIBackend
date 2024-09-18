@@ -32,3 +32,4 @@ C:\Users\Asus\WeatherAppBackend\obj\Debug\net8.0\WeatherAppBackend.pdb
 C:\Users\Asus\WeatherAppBackend\obj\Debug\net8.0\WeatherAppBackend.genruntimeconfig.cache
 C:\Users\Asus\WeatherAppBackend\obj\Debug\net8.0\ref\WeatherAppBackend.dll
 C:\Users\Asus\WeatherAppBackend\bin\Debug\net8.0\System.Text.Json.dll
+C:\Users\Asus\WeatherAppBackend\obj\Debug\net8.0\WeatherAppBackend.sourcelink.json

@@ -9,6 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<WeatherService>();
+//in-memory caching
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

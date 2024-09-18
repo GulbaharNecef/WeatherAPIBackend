@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
 using WeatherAppBackend.DTOs;
 
 namespace WeatherAppBackend
@@ -6,15 +7,25 @@ namespace WeatherAppBackend
     public class WeatherService
     {
         private readonly HttpClient _httpClient;
+        private readonly IMemoryCache _cache;
         private readonly string _apiKey = "f011f57e6dfa44c0a09204906241609";
         private readonly string _baseUrl = "https://api.weatherapi.com/v1";
-        public WeatherService(HttpClient httpClient)
+        public WeatherService(HttpClient httpClient, IMemoryCache cache)
         {
             _httpClient = httpClient;
+            _cache = cache;
         }
 
         public async Task<ApiWeatherResponse> GetCurrentWeatherByCityAsync(string city)
         {
+            string cacheKey = $"WeatherData_{city}";
+            // checking if data is available in the cache
+            if(_cache.TryGetValue(cacheKey, out ApiWeatherResponse cachedWeatherData))
+            {
+                return cachedWeatherData;
+            }
+
+            //if not in cache,fetch from weather API
             var response = await _httpClient.GetAsync($"{_baseUrl}/current.json?key={_apiKey}&q={city}");
             if (response.IsSuccessStatusCode)
             {
@@ -23,6 +34,8 @@ namespace WeatherAppBackend
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
+                _cache.Set(cacheKey, apiResponse, TimeSpan.FromMinutes(10));
                 return apiResponse;
 
             }
@@ -45,20 +58,20 @@ namespace WeatherAppBackend
             {
                 RealFeel = new RealFeelDto
                 {
-                    FeelsLikeCelsius = apiResponse.Current.FeelslikeC,
-                    FeelsLikeFahrenheit = apiResponse.Current.FeelslikeF
+                    FeelsLikeCelsius = apiResponse.Current.Feelslike_c,//FeelslikeC
+                    FeelsLikeFahrenheit = apiResponse.Current.Feelslike_f//FeelslikeF
                 },
                 Wind = new WindDto
                 {
-                    SpeedMph = apiResponse.Current.WindMph,
-                    SpeedKph = apiResponse.Current.WindKph,
-                    Degree = apiResponse.Current.WindDegree,
-                    Direction = apiResponse.Current.WindDir
+                    SpeedMph = apiResponse.Current.Wind_mph,
+                    SpeedKph = apiResponse.Current.Wind_kph,
+                    Degree = apiResponse.Current.Wind_degree,
+                    Direction = apiResponse.Current.Wind_dir
                 },
                 Pressure = new PressureDto
                 {
-                    PressureMb = apiResponse.Current.PressureMb,
-                    PressureIn = apiResponse.Current.PressureIn
+                    PressureMb = apiResponse.Current.Pressure_mb,
+                    PressureIn = apiResponse.Current.Pressure_in
                 },
                 Humidity = apiResponse.Current.Humidity,
                 SunriseSunset = new SunriseSunsetDto
